@@ -11,6 +11,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+
     // Добавлена зависимость к стандартной библиотеке Kotlin для тестов,
     // если вы собираетесь использовать Kotlin в своих тестах
     testImplementation("org.jetbrains.kotlin:kotlin-test")

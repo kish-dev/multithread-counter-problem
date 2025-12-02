@@ -1,5 +1,10 @@
 package multithread
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
@@ -35,6 +40,21 @@ class AtomicCounter(var count: AtomicInteger) {
     }
 }
 
+class CounterMutex(var count: Int) {
+    private val mutex = Mutex()
+
+    suspend fun increment() {
+        mutex.withLock {
+            ++count
+        }
+    }
+
+    suspend fun decrement() {
+        mutex.withLock {
+            --count
+        }
+    }
+}
 
 object MultiThread {
     fun notSync(): Int {
@@ -130,5 +150,53 @@ object MultiThread {
         two.join()
 
         return counter.count.get()
+    }
+}
+
+object MultiCoroutine {
+    suspend fun notSync(): Int {
+        val scope = CoroutineScope(Dispatchers.Default)
+
+        val counter = Counter(0)
+
+        val one = scope.launch {
+            for (i in 0..100_000) {
+                counter.increment()
+            }
+        }
+
+        val two = scope.launch {
+            for (i in 0..100_000) {
+                counter.decrement()
+            }
+        }
+
+        one.join()
+        two.join()
+
+        return counter.count
+    }
+
+    suspend fun sync(): Int {
+        val scope = CoroutineScope(Dispatchers.Default)
+
+        val counter = CounterMutex(0)
+
+        val one = scope.launch {
+            for (i in 0..100_000) {
+                counter.increment()
+            }
+        }
+
+        val two = scope.launch {
+            for (i in 0..100_000) {
+                counter.decrement()
+            }
+        }
+
+        one.join()
+        two.join()
+
+        return counter.count
     }
 }
