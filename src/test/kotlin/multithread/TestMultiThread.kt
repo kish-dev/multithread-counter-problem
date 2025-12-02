@@ -1,7 +1,8 @@
 package multithread
 
-import java.util.logging.Logger
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.util.logging.Logger
 
 class TestMultiThread {
 
@@ -26,7 +27,7 @@ class TestMultiThread {
     ) {
         val list = mutableListOf<Long>()
         val counterList = mutableListOf<Int>()
-        for(i in 0 until REPEAT_COUNT) {
+        for (i in 0 until REPEAT_COUNT) {
             val startTime = System.nanoTime()
 
             val counter = lambda.invoke()
@@ -71,6 +72,22 @@ class TestMultiThread {
         start(
             methodName = "atomic",
             lambda = { MultiThread.atomic() }
+        )
+    }
+
+    @Test
+    fun coroutineNotSync() {
+        start(
+            methodName = "coroutineNotSync",
+            lambda = { runBlocking { MultiCoroutine.notSync() } }
+        )
+    }
+
+    @Test
+    fun coroutineSync() {
+        start(
+            methodName = "coroutineSync",
+            lambda = { runBlocking { MultiCoroutine.sync() } }
         )
     }
 }
